@@ -204,7 +204,7 @@ sub download($)
 sub get($)
 {
     my $csid = shift;
-    my $resp = OsmApi::get("changeset/$csid?include_discussion=true");
+    my $resp = OsmApi::get("changeset/$csid?include_discussion=true&show_hidden_comments=true", "", 1);
     if (!$resp->is_success)
     {
         print STDERR "metadata of changeset $csid cannot be retrieved: ".$resp->status_line."\n";
