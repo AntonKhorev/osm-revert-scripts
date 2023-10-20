@@ -41,4 +41,31 @@ sub create
     return undef;
 }
 
+# -----------------------------------------------------------------------------
+# Creates new block. 
+# Parameters: User id, reason for block, duration in hours, and 1/0 for "needs to log in"
+# Returns: block id, or undef 
+
+sub create_on_id
+{
+    my ($user, $reason, $duration, $needsview) = @_;
+
+    use XML::Twig;
+    my $body = "user=".uri_escape($user);
+    $body .= "&period=".uri_escape($duration);
+    $body .= "&needs_view=true" if $needsview;
+    $body .= "&reason=".uri_escape($reason);
+    my $resp = OsmApi::post("user_blocks", $body, 1);
+    if (!$resp->is_success)
+    {
+        print STDERR "cannot create block: ".$resp->status_line."\n";
+        return undef;
+    }
+
+    my $twig = XML::Twig->new()->parse($resp->content);
+    my $twig_block = $twig->root->first_child('user_block');
+    return unless $twig_block;
+    return $twig_block->att('id');
+}
+
 1;
